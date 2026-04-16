@@ -7,3 +7,6 @@
 [submodule "order-ms"]
 	path = order-ms
 	url = https://github.com/Nest-MS-PadillaSoftware/Orders-MS.git
+[submodule "payment-ms"]
+	path = payment-ms
+	url = https://github.com/Nest-MS-PadillaSoftware/payment-ms.git
