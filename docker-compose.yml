@@ -28,8 +28,6 @@ services:
 #================================  
   products-ms:
     build: ./products-ms
-    ports:
-      - "3001:3001"
     volumes:
       - ./products-ms/src:/usr/src/app/src
     command: npm run dev
@@ -44,8 +42,6 @@ services:
 #================================
   order-ms:
     build: ./order-ms
-    ports:
-      - "3002:3002"
     volumes:
       - ./order-ms/src:/usr/src/app/src
     command: npm run dev
@@ -93,8 +89,6 @@ services:
 #================================
   auth-ms:
     build: ./auth-ms
-    ports:
-      - ${AUTH_MS_PORT}:${AUTH_MS_PORT}
     volumes:
       - ./auth-ms/src:/usr/src/app/src
     command: npm run dev
