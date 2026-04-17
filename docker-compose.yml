@@ -93,5 +93,6 @@ services:
       - ./auth-ms/src:/usr/src/app/src
     command: npm run dev
     environment:
-      - PORT=${AUTH_MS_PORT}
+      - PORT=3004
       - NATS_SERVERS=${NATS_SERVERS}
+      - DATABASE_URL=${AUTH_MONGODB_URI}
