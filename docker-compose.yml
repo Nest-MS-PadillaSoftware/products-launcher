@@ -23,70 +23,83 @@ services:
       - NATS_SERVERS=nats://nats-server:4222
   
 
-#===============================
-# Products Microservice
-#================================  
-  products-ms:
-    build: ./products-ms
-    volumes:
-      - ./products-ms/src:/usr/src/app/src
-    command: npm run dev
-    environment:
-      - PORT=3001
-      - NATS_SERVERS=nats://nats-server:4222
-      - DATABASE_URL=file:./dev.db
+# #===============================
+# # Products Microservice
+# #================================  
+#   products-ms:
+#     build: ./products-ms
+#     volumes:
+#       - ./products-ms/src:/usr/src/app/src
+#     command: npm run dev
+#     environment:
+#       - PORT=3001
+#       - NATS_SERVERS=nats://nats-server:4222
+#       - DATABASE_URL=file:./dev.db
 
 
+# #===============================
+# # Order Microservice
+# #================================
+#   order-ms:
+#     build: ./order-ms
+#     volumes:
+#       - ./order-ms/src:/usr/src/app/src
+#     command: npm run dev
+#     environment:
+#       - PORT=3002
+#       - NATS_SERVERS=nats://nats-server:4222
+#       - DATABASE_URL=postgresql://postgres:Mp071293.!@orders-db:5432/ordersdb?schema=public
+#     depends_on:
+#       - orders-db
+
+
+#   orders-db:
+#     container_name: order_database
+#     image: postgres:16.2
+#     restart: always
+#     volumes:
+#       - ./order-ms/postgres:/var/lib/postgresql/data
+#     ports:
+#       - 5433:5432
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: Mp071293.!
+#       POSTGRES_DB: ordersdb
+
 #===============================
-# Order Microservice
+# Payment Microservice
 #================================
-  order-ms:
-    build: ./order-ms
-    volumes:
-      - ./order-ms/src:/usr/src/app/src
-    command: npm run dev
-    environment:
-      - PORT=3002
-      - NATS_SERVERS=nats://nats-server:4222
-      - DATABASE_URL=postgresql://postgres:Mp071293.!@orders-db:5432/ordersdb?schema=public
-    depends_on:
-      - orders-db
+  # payment-ms:
+  #   build: ./payment-ms
+  #   ports:
+  #     - ${PAYMENT_MS_PORT}:${PAYMENT_MS_PORT}
+  #   volumes:
+  #     - ./payment-ms/src:/usr/src/app/src
+  #   command: npm run dev
+  #   environment:
+  #     - PORT=${PAYMENT_MS_PORT}
+  #     - NATS_SERVERS=${NATS_SERVERS}
+  #     - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+  #     - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
+  #     - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
+  #     - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
 
-
-  orders-db:
-    container_name: order_database
+#===============================
+# Payment Microservice
+#================================
+  auth-db:
+    container_name: auth_database
     image: postgres:16.2
     restart: always
     volumes:
-      - ./order-ms/postgres:/var/lib/postgresql/data
+      - ./auth-ms/postgres:/var/lib/postgresql/data
     ports:
-      - 5433:5432
+      - 5434:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Mp071293.!
-      POSTGRES_DB: ordersdb
+      POSTGRES_DB: authdb    
 
-#===============================
-# Payment Microservice
-#================================
-  payment-ms:
-    build: ./payment-ms
-    ports:
-      - ${PAYMENT_MS_PORT}:${PAYMENT_MS_PORT}
-    volumes:
-      - ./payment-ms/src:/usr/src/app/src
-    command: npm run dev
-    environment:
-      - PORT=${PAYMENT_MS_PORT}
-      - NATS_SERVERS=${NATS_SERVERS}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
-      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-
-#===============================
-# Payment Microservice
-#================================
   auth-ms:
     build: ./auth-ms
     volumes:
@@ -95,4 +108,7 @@ services:
     environment:
       - PORT=3004
       - NATS_SERVERS=${NATS_SERVERS}
-      - DATABASE_URL=${AUTH_MONGODB_URI}
+      - DATABASE_URL=postgresql://postgres:Mp071293.!@auth-db:5432/authdb?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - auth-db
