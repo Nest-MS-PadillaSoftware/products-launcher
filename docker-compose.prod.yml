@@ -1,0 +1,73 @@
+services:
+
+  nats-server:
+    image: nats:latest
+    
+  client-gateway:
+    build:
+      context: ./client-gateway
+      dockerfile: dockerfile.prod
+    image: client-gateway-prod
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:${CLIENT_GATEWAY_PORT}
+    environment:
+      - PORT=${CLIENT_GATEWAY_PORT}
+      - NATS_SERVERS=nats://nats-server:4222
+
+
+  auth-ms:
+    build:
+      context: ./auth-ms
+      dockerfile: dockerfile.prod
+      args:
+        - AUTH_DATABASE_URL=${AUTH_DATABASE_URL}
+    image: auth-ms
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=${AUTH_DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+
+  products-ms:
+    build:
+      context: ./products-ms
+      dockerfile: dockerfile.prod
+    image: products-ms
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=file:/usr/src/app/prisma/dev.db
+
+  
+  # Orders MS
+  orders-ms:
+    build: 
+      context: ./order-ms
+      dockerfile: dockerfile.prod
+      args:
+        - ORDERS_DATABASE_URL=${ORDERS_DATABASE_URL}
+    image: orders-ms
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${ORDERS_DATABASE_URL}
+      - NATS_SERVERS=nats://nats-server:4222
+
+
+# ======================
+# Payments Microservice
+# ======================
+  payments-ms:
+    build:
+      context: ./payment-ms
+      dockerfile: dockerfile.prod
+    image: payments-ms
+    ports:
+      - ${PAYMENT_MS_PORT}:${PAYMENT_MS_PORT}
+    environment:
+      - PORT=${PAYMENT_MS_PORT}
+      - NATS_SERVERS=nats://nats-server:4222
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
+      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      
